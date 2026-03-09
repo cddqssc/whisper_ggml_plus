@@ -101,6 +101,65 @@ if (result != null) {
 }
 ```
 
+### 5. Control VAD explicitly
+
+`whisper_ggml_plus` now exposes VAD policy through `WhisperVadMode`.
+
+```dart
+final result = await controller.transcribe(
+  model: model,
+  audioPath: audioPath,
+  vadMode: WhisperVadMode.auto,
+);
+```
+
+- `WhisperVadMode.auto`: uses the platform default behavior.
+- `WhisperVadMode.disabled`: always turns VAD off.
+- `WhisperVadMode.enabled`: requires a usable VAD model path on platforms that do not bundle one automatically.
+
+For lower-level control, pass `vadMode` and `vadModelPath` directly through `TranscribeRequest`.
+
+```dart
+final whisper = Whisper(model: model);
+
+final response = await whisper.transcribe(
+  transcribeRequest: TranscribeRequest(
+    audio: audioPath,
+    vadMode: WhisperVadMode.enabled,
+    vadModelPath: '/absolute/path/to/ggml-silero-v6.2.0.bin',
+  ),
+  modelPath: modelPath,
+);
+```
+
+Platform defaults:
+- iOS/macOS: `auto` tries the bundled Silero VAD model automatically.
+- Android/Windows: `auto` leaves VAD off unless you provide `vadModelPath`.
+
+### 6. `splitOnWord` timestamp guidance
+
+`splitOnWord` is a timestamp-sensitive mode. This package now disables VAD automatically when `splitOnWord` is enabled so that word-level timestamps stay more stable and predictable.
+
+Recommended usage:
+
+```dart
+final whisper = Whisper(model: model);
+
+final response = await whisper.transcribe(
+  transcribeRequest: TranscribeRequest(
+    audio: audioPath,
+    splitOnWord: true,
+    vadMode: WhisperVadMode.auto,
+  ),
+  modelPath: modelPath,
+);
+```
+
+Notes:
+- `splitOnWord: true` uses token-level timestamps and makes timing noise easier to see.
+- VAD is forced off for this mode even if `vadMode` is `auto` or `enabled`.
+- If you need aggressive silence trimming, keep `splitOnWord` off and use segment-level timestamps instead.
+
 ### Live Transcription Status
 
 `whisper_ggml_plus` currently supports file-based transcription (`audioPath`) and returns results after inference completes.
