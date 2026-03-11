@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:universal_io/io.dart';
 import 'package:whisper_ggml_plus/src/models/whisper_model.dart';
 
+import 'bundled_vad_model_resolver.dart';
 import 'models/requests/abort_request.dart';
 import 'models/requests/dispose_request.dart';
 import 'models/requests/transcribe_request.dart';
@@ -21,6 +22,7 @@ export 'whisper_audio_convert.dart';
 
 /// Native request type
 typedef WReqNative = Pointer<Utf8> Function(Pointer<Utf8> body);
+typedef WFreeStringNative = Void Function(Pointer<Utf8> response);
 
 /// Entry point
 class Whisper {
@@ -49,17 +51,30 @@ class Whisper {
     required WhisperRequestDto whisperRequest,
   }) async {
     return Isolate.run(() async {
+      final DynamicLibrary library = _openLib();
+      final WReqNative requestNative =
+          library.lookupFunction<WReqNative, WReqNative>('request');
+      final void Function(Pointer<Utf8>) freeStringNative = library
+          .lookupFunction<WFreeStringNative, void Function(Pointer<Utf8>)>(
+        'free_string',
+      );
       final Pointer<Utf8> data =
           whisperRequest.toRequestString().toNativeUtf8();
-      final Pointer<Utf8> res = _openLib()
-          .lookupFunction<WReqNative, WReqNative>('request')
-          .call(data);
+      Pointer<Utf8> response = Pointer<Utf8>.fromAddress(0);
 
-      final Map<String, dynamic> result =
-          json.decode(res.toDartString()) as Map<String, dynamic>;
+      try {
+        response = requestNative(data);
+        if (response.address == 0) {
+          throw Exception('Native request returned null');
+        }
 
-      malloc.free(data);
-      return result;
+        return json.decode(response.toDartString()) as Map<String, dynamic>;
+      } finally {
+        malloc.free(data);
+        if (response.address != 0) {
+          freeStringNative(response);
+        }
+      }
     });
   }
 
@@ -69,9 +84,11 @@ class Whisper {
     required String modelPath,
   }) async {
     try {
+      final TranscribeRequest resolvedRequest =
+          await resolveVadModelPath(transcribeRequest);
       final Map<String, dynamic> result = await _request(
         whisperRequest: TranscribeRequestDto.fromTranscribeRequest(
-          transcribeRequest,
+          resolvedRequest,
           modelPath,
         ),
       );
