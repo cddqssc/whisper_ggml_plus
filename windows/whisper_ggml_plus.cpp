@@ -8,9 +8,11 @@
 #include <atomic>
 #include <algorithm>
 #include <chrono>
+#include <codecvt>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <locale>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -99,6 +101,13 @@ static bool abort_callback(void * user_data) {
     return g_should_abort.load();
 }
 
+#ifdef _WIN32
+static std::wstring utf8_to_wstring(const std::string & path) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(path);
+}
+#endif
+
 static char * json_to_char(const json & json_data) {
     try {
         std::string result = json_data.dump(-1, ' ', true, nlohmann::json::error_handler_t::replace);
@@ -160,7 +169,12 @@ static json transcribe(const json & json_body) {
     std::vector<float> pcmf32;
     {
         drwav wav;
+#ifdef _WIN32
+        const std::wstring audio_path = utf8_to_wstring(params.audio);
+        if (!drwav_init_file_w(&wav, audio_path.c_str(), nullptr)) {
+#else
         if (!drwav_init_file(&wav, params.audio.c_str(), nullptr)) {
+#endif
             json_result["@type"] = "error";
             json_result["message"] = " failed to open WAV file ";
             return json_result;
@@ -312,6 +326,10 @@ FUNCTION_ATTRIBUTE char *request(char *body) {
     } catch (const std::exception & e) {
         return json_to_char({{"@type", "error"}, {"message", e.what()}});
     }
+}
+
+FUNCTION_ATTRIBUTE void free_string(char *ptr) {
+    delete[] ptr;
 }
 
 }
