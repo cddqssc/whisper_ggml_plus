@@ -512,7 +512,7 @@ static std::string get_executable_path() {
     if (last_slash != std::string::npos) {
         base_path = base_path.substr(0, last_slash);
     }
-    return base_path + L"\\";
+    return path_str(fs::path(base_path)) + "\\";
 #else
     return {};
 #endif
@@ -547,7 +547,7 @@ static ggml_backend_reg_t ggml_backend_load_best(const char * name, bool silent,
         search_paths.push_back(fs::u8path(GGML_BACKEND_DIR));
 #endif
         // default search paths: executable directory, current directory
-        search_paths.push_back(get_executable_path());
+        search_paths.push_back(fs::u8path(get_executable_path()));
         search_paths.push_back(fs::current_path());
     } else {
         search_paths.push_back(fs::u8path(user_search_path));
