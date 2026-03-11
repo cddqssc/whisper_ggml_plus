@@ -1,3 +1,5 @@
+#include "whisper_ggml.h"
+
 #include "whisper/whisper.h"
 
 #define DR_WAV_IMPLEMENTATION
@@ -300,7 +302,7 @@ json transcribe(json jsonBody)
 
 extern "C"
 {
-    char *request(char *body)
+    FUNCTION_ATTRIBUTE char *request(char *body)
     {
         try {
             json jsonBody = json::parse(body);
@@ -323,5 +325,10 @@ extern "C"
         } catch (const std::exception &e) {
             return jsonToChar({{"@type", "error"}, {"message", e.what()}});
         }
+    }
+
+    FUNCTION_ATTRIBUTE void free_string(char *ptr)
+    {
+        delete[] ptr;
     }
 }

@@ -15,6 +15,14 @@
 #include "json/json.hpp"
 #include <stdio.h>
 
+#if defined(__GNUC__)
+#define FUNCTION_ATTRIBUTE __attribute__((visibility("default"))) __attribute__((used))
+#elif defined(_MSC_VER)
+#define FUNCTION_ATTRIBUTE __declspec(dllexport)
+#else
+#define FUNCTION_ATTRIBUTE
+#endif
+
 extern "C" const char* get_vad_model_path();
 
 using json = nlohmann::json;
@@ -304,7 +312,7 @@ json transcribe(json jsonBody)
 
 extern "C"
 {
-    char *request(char *body)
+    FUNCTION_ATTRIBUTE char *request(char *body)
     {
         try {
             json jsonBody = json::parse(body);
@@ -327,5 +335,10 @@ extern "C"
         } catch (const std::exception &e) {
             return jsonToChar({{"@type", "error"}, {"message", e.what()}});
         }
+    }
+
+    FUNCTION_ATTRIBUTE void free_string(char *ptr)
+    {
+        delete[] ptr;
     }
 }

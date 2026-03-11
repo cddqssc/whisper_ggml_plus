@@ -11,7 +11,8 @@ extern "C"
 {
 #endif
 
-char *request(char *body);
+FUNCTION_ATTRIBUTE char *request(char *body);
+FUNCTION_ATTRIBUTE void free_string(char *ptr);
 
 #ifdef __cplusplus
 }
