@@ -5,6 +5,8 @@ if (WIN32)
     if (BUILD_SHARED_LIBS)
         set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     endif()
+
+    add_compile_options(/utf-8)
 endif()
 
 
