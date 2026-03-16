@@ -87,14 +87,6 @@ static struct whisper_context * g_ctx = nullptr;
 static std::string g_model_path = "";
 static std::mutex g_mutex;
 static std::atomic<bool> g_should_abort(false);
-static std::atomic<int> g_progress(0);
-
-static void progress_callback(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data) {
-    (void) ctx;
-    (void) state;
-    (void) user_data;
-    g_progress.store(progress);
-}
 
 static void dispose_context_locked() {
     if (g_ctx != nullptr) {
@@ -136,7 +128,6 @@ static json transcribe(const json & json_body) {
     std::lock_guard<std::mutex> lock(g_mutex);
 
     g_should_abort.store(false);
-    g_progress.store(0);
 
     whisper_params params;
     params.n_threads = json_body["threads"];
@@ -256,9 +247,6 @@ static json transcribe(const json & json_body) {
     wparams.abort_callback = abort_callback;
     wparams.abort_callback_user_data = nullptr;
 
-    wparams.progress_callback = progress_callback;
-    wparams.progress_callback_user_data = nullptr;
-
     std::fprintf(stderr,
                  "[DEBUG] Transcription params - threads: %d, speed_up: %d, no_timestamps: %d, single_segment: %d, split_on_word: %d, max_len: %d\n",
                  wparams.n_threads,
@@ -286,8 +274,6 @@ static json transcribe(const json & json_body) {
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-    g_progress.store(100);
-
     std::fprintf(stderr, "[DEBUG] Transcription completed in %lldms\n", (long long) duration);
     std::fflush(stderr);
 
@@ -313,9 +299,6 @@ static json transcribe(const json & json_body) {
     }
 
     json_result["text"] = text_result;
-    json_result["timing"] = duration;
-    // On Windows, if initialized with use_gpu=true, it usually uses CUDA/OpenVINO
-    json_result["gpu"] = true;
     return json_result;
 }
 
@@ -343,10 +326,6 @@ FUNCTION_ATTRIBUTE char *request(char *body) {
     } catch (const std::exception & e) {
         return json_to_char({{"@type", "error"}, {"message", e.what()}});
     }
-}
-
-FUNCTION_ATTRIBUTE int get_progress() {
-    return g_progress.load();
 }
 
 FUNCTION_ATTRIBUTE void free_string(char *ptr) {

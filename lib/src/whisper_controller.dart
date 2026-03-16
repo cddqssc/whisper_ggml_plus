@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_io/io.dart';
@@ -39,7 +38,6 @@ class WhisperController {
     bool speedUp = false,
     WhisperVadMode vadMode = WhisperVadMode.auto,
     String? vadModelPath,
-    void Function(int progress)? onProgress,
   }) async {
     await initModel(model);
 
@@ -69,14 +67,6 @@ class WhisperController {
         }
       }
 
-      Timer? progressTimer;
-      if (onProgress != null) {
-        progressTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-          final int progress = whisper.getProgress();
-          onProgress(progress);
-        });
-      }
-
       final WhisperTranscribeResponse transcription = await whisper.transcribe(
         transcribeRequest: TranscribeRequest(
           audio: finalAudioPath,
@@ -93,9 +83,6 @@ class WhisperController {
         ),
         modelPath: _modelPath,
       );
-
-      progressTimer?.cancel();
-      onProgress?.call(100);
 
       final DateTime end = DateTime.now();
       final Duration totalDuration = end.difference(start);

@@ -19,8 +19,6 @@ mixin _$WhisperTranscribeResponse {
   String get text;
   @JsonKey(name: 'segments')
   List<WhisperTranscribeSegment>? get segments;
-  bool? get gpu;
-  int? get timing;
 
   /// Create a copy of WhisperTranscribeResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -40,19 +38,17 @@ mixin _$WhisperTranscribeResponse {
             other is WhisperTranscribeResponse &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.text, text) || other.text == text) &&
-            const DeepCollectionEquality().equals(other.segments, segments) &&
-            (identical(other.gpu, gpu) || other.gpu == gpu) &&
-            (identical(other.timing, timing) || other.timing == timing));
+            const DeepCollectionEquality().equals(other.segments, segments));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, type, text,
-      const DeepCollectionEquality().hash(segments), gpu, timing);
+  int get hashCode => Object.hash(
+      runtimeType, type, text, const DeepCollectionEquality().hash(segments));
 
   @override
   String toString() {
-    return 'WhisperTranscribeResponse(type: $type, text: $text, segments: $segments, gpu: $gpu, timing: $timing)';
+    return 'WhisperTranscribeResponse(type: $type, text: $text, segments: $segments)';
   }
 }
 
@@ -65,9 +61,7 @@ abstract mixin class $WhisperTranscribeResponseCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: '@type') String type,
       String text,
-      @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments,
-      bool? gpu,
-      int? timing});
+      @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments});
 }
 
 /// @nodoc
@@ -86,8 +80,6 @@ class _$WhisperTranscribeResponseCopyWithImpl<$Res>
     Object? type = null,
     Object? text = null,
     Object? segments = freezed,
-    Object? gpu = freezed,
-    Object? timing = freezed,
   }) {
     return _then(_self.copyWith(
       type: null == type
@@ -102,14 +94,6 @@ class _$WhisperTranscribeResponseCopyWithImpl<$Res>
           ? _self.segments
           : segments // ignore: cast_nullable_to_non_nullable
               as List<WhisperTranscribeSegment>?,
-      gpu: freezed == gpu
-          ? _self.gpu
-          : gpu // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      timing: freezed == timing
-          ? _self.timing
-          : timing // ignore: cast_nullable_to_non_nullable
-              as int?,
     ));
   }
 }
@@ -210,17 +194,15 @@ extension WhisperTranscribeResponsePatterns on WhisperTranscribeResponse {
     TResult Function(
             @JsonKey(name: '@type') String type,
             String text,
-            @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments,
-            bool? gpu,
-            int? timing)?
+            @JsonKey(name: 'segments')
+            List<WhisperTranscribeSegment>? segments)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _WhisperTranscribeResponse() when $default != null:
-        return $default(
-            _that.type, _that.text, _that.segments, _that.gpu, _that.timing);
+        return $default(_that.type, _that.text, _that.segments);
       case _:
         return orElse();
     }
@@ -241,19 +223,14 @@ extension WhisperTranscribeResponsePatterns on WhisperTranscribeResponse {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            @JsonKey(name: '@type') String type,
-            String text,
-            @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments,
-            bool? gpu,
-            int? timing)
+    TResult Function(@JsonKey(name: '@type') String type, String text,
+            @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WhisperTranscribeResponse():
-        return $default(
-            _that.type, _that.text, _that.segments, _that.gpu, _that.timing);
+        return $default(_that.type, _that.text, _that.segments);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -276,16 +253,14 @@ extension WhisperTranscribeResponsePatterns on WhisperTranscribeResponse {
     TResult? Function(
             @JsonKey(name: '@type') String type,
             String text,
-            @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments,
-            bool? gpu,
-            int? timing)?
+            @JsonKey(name: 'segments')
+            List<WhisperTranscribeSegment>? segments)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WhisperTranscribeResponse() when $default != null:
-        return $default(
-            _that.type, _that.text, _that.segments, _that.gpu, _that.timing);
+        return $default(_that.type, _that.text, _that.segments);
       case _:
         return null;
     }
@@ -299,9 +274,7 @@ class _WhisperTranscribeResponse extends WhisperTranscribeResponse {
       {@JsonKey(name: '@type') required this.type,
       required this.text,
       @JsonKey(name: 'segments')
-      required final List<WhisperTranscribeSegment>? segments,
-      this.gpu,
-      this.timing})
+      required final List<WhisperTranscribeSegment>? segments})
       : _segments = segments,
         super._();
   factory _WhisperTranscribeResponse.fromJson(Map<String, dynamic> json) =>
@@ -322,11 +295,6 @@ class _WhisperTranscribeResponse extends WhisperTranscribeResponse {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
-
-  @override
-  final bool? gpu;
-  @override
-  final int? timing;
 
   /// Create a copy of WhisperTranscribeResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -352,19 +320,17 @@ class _WhisperTranscribeResponse extends WhisperTranscribeResponse {
             other is _WhisperTranscribeResponse &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.text, text) || other.text == text) &&
-            const DeepCollectionEquality().equals(other._segments, _segments) &&
-            (identical(other.gpu, gpu) || other.gpu == gpu) &&
-            (identical(other.timing, timing) || other.timing == timing));
+            const DeepCollectionEquality().equals(other._segments, _segments));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, type, text,
-      const DeepCollectionEquality().hash(_segments), gpu, timing);
+  int get hashCode => Object.hash(
+      runtimeType, type, text, const DeepCollectionEquality().hash(_segments));
 
   @override
   String toString() {
-    return 'WhisperTranscribeResponse(type: $type, text: $text, segments: $segments, gpu: $gpu, timing: $timing)';
+    return 'WhisperTranscribeResponse(type: $type, text: $text, segments: $segments)';
   }
 }
 
@@ -379,9 +345,7 @@ abstract mixin class _$WhisperTranscribeResponseCopyWith<$Res>
   $Res call(
       {@JsonKey(name: '@type') String type,
       String text,
-      @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments,
-      bool? gpu,
-      int? timing});
+      @JsonKey(name: 'segments') List<WhisperTranscribeSegment>? segments});
 }
 
 /// @nodoc
@@ -400,8 +364,6 @@ class __$WhisperTranscribeResponseCopyWithImpl<$Res>
     Object? type = null,
     Object? text = null,
     Object? segments = freezed,
-    Object? gpu = freezed,
-    Object? timing = freezed,
   }) {
     return _then(_WhisperTranscribeResponse(
       type: null == type
@@ -416,14 +378,6 @@ class __$WhisperTranscribeResponseCopyWithImpl<$Res>
           ? _self._segments
           : segments // ignore: cast_nullable_to_non_nullable
               as List<WhisperTranscribeSegment>?,
-      gpu: freezed == gpu
-          ? _self.gpu
-          : gpu // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      timing: freezed == timing
-          ? _self.timing
-          : timing // ignore: cast_nullable_to_non_nullable
-              as int?,
     ));
   }
 }

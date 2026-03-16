@@ -15,8 +15,6 @@ abstract class WhisperTranscribeResponse with _$WhisperTranscribeResponse {
     required String text,
     @JsonKey(name: 'segments')
     required List<WhisperTranscribeSegment>? segments,
-    bool? gpu,
-    int? timing,
   }) = _WhisperTranscribeResponse;
 
   const WhisperTranscribeResponse._();
