@@ -32,8 +32,15 @@ add_compile_definitions(
   GGML_USE_CPU
 )
 
-add_subdirectory("${GGML_ROOT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/ggml")
-add_subdirectory("${WHISPER_SRC_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/whisper")
+# Disable installation rules for subdirectories (ggml, whisper)
+# This avoids errors with generator expressions in CMAKE_INSTALL_PREFIX during Flutter build
+set(CMAKE_SKIP_INSTALL_RULES TRUE)
+
+add_subdirectory("${GGML_ROOT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/ggml" EXCLUDE_FROM_ALL)
+add_subdirectory("${WHISPER_SRC_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/whisper" EXCLUDE_FROM_ALL)
+
+# Re-enable install for the main target
+set(CMAKE_SKIP_INSTALL_RULES FALSE)
 
 add_library(${PROJECT_NAME} SHARED
   "${CMAKE_CURRENT_LIST_DIR}/whisper_ggml_plus.cpp"
@@ -62,7 +69,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  set(ggml_library_flutter_bundled_libraries
+  set(${PROJECT_NAME}_bundled_libraries
     $<TARGET_FILE:${PROJECT_NAME}>
     PARENT_SCOPE
   )
