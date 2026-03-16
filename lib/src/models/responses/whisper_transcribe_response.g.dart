@@ -15,6 +15,8 @@ _WhisperTranscribeResponse _$WhisperTranscribeResponseFromJson(
           ?.map((e) =>
               WhisperTranscribeSegment.fromJson(e as Map<String, dynamic>))
           .toList(),
+      gpu: json['gpu'] as bool?,
+      timing: (json['timing'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$WhisperTranscribeResponseToJson(
@@ -23,4 +25,6 @@ Map<String, dynamic> _$WhisperTranscribeResponseToJson(
       '@type': instance.type,
       'text': instance.text,
       'segments': instance.segments,
+      'gpu': instance.gpu,
+      'timing': instance.timing,
     };

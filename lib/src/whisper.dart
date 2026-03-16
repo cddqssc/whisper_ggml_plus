@@ -23,6 +23,7 @@ export 'whisper_audio_convert.dart';
 /// Native request type
 typedef WReqNative = Pointer<Utf8> Function(Pointer<Utf8> body);
 typedef WFreeStringNative = Void Function(Pointer<Utf8> response);
+typedef WGetProgressNative = Int32 Function();
 
 /// Entry point
 class Whisper {
@@ -121,5 +122,13 @@ class Whisper {
 
   Future<void> dispose() async {
     await _request(whisperRequest: const DisposeRequest());
+  }
+
+  /// Get current transcription progress (0-100)
+  int getProgress() {
+    final DynamicLibrary library = _openLib();
+    final int Function() getProgressNative = library
+        .lookupFunction<WGetProgressNative, int Function()>('get_progress');
+    return getProgressNative();
   }
 }
