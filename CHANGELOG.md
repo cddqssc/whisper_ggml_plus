@@ -5,6 +5,13 @@
 
 * clarify release-please changelog and notes generation ([56d8b23](https://github.com/DDULDDUCK/whisper_ggml_plus/commit/56d8b2345c1832409b40a82b5db1e3ac39d86287))
 
+## [1.4.2](https://github.com/DDULDDUCK/whisper_ggml_plus/compare/v1.4.1...v1.4.2) (2026-03-17)
+
+
+### Bug Fixes
+
+* restore Android and iOS native build wiring ([8b0ac82](https://github.com/DDULDDUCK/whisper_ggml_plus/commit/8b0ac82b6e43638ee370633d144220670e396b58))
+
 ## [1.4.1](https://github.com/DDULDDUCK/whisper_ggml_plus/compare/v1.4.0...v1.4.1) (2026-03-11)
 
 
