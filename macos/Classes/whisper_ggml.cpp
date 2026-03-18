@@ -73,7 +73,10 @@ struct whisper_params
 };
 
 static whisper_vad_mode parse_vad_mode(const json & json_body) {
-    const std::string vad_mode = json_body.value("vad_mode", std::string("auto"));
+    const auto it = json_body.find("vad_mode");
+    const std::string vad_mode = (it != json_body.end() && it->is_string())
+        ? it->get<std::string>()
+        : std::string("auto");
     if (vad_mode == "disabled") {
         return whisper_vad_mode::disabled;
     }
@@ -155,7 +158,10 @@ json transcribe(json jsonBody)
     params.diarize = jsonBody["diarize"];
     params.speed_up = jsonBody["speed_up"];
     params.vad_mode = parse_vad_mode(jsonBody);
-    params.vad_model_path = jsonBody.value("vad_model_path", std::string(""));
+    const auto vad_model_path_it = jsonBody.find("vad_model_path");
+    params.vad_model_path = (vad_model_path_it != jsonBody.end() && vad_model_path_it->is_string())
+        ? vad_model_path_it->get<std::string>()
+        : std::string("");
 
     json jsonResult;
     jsonResult["@type"] = "transcribe";
